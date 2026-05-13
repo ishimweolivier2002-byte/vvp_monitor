@@ -8,17 +8,20 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            /* FIXED: Changed 2e0416 to 3e0416 to match your GitHub file exactly */
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
-                        url('image_3e0416.jpg');
+            /* Fallback blue while image loads */
+            background-color: #1e3a8a; 
+            /* UPDATED: Handled the space and parentheses using %20 and %28 %29 */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                            url('image_3e0416%20%281%29.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
+            background-repeat: no-repeat;
         }
     </style>
 </head>
 <body class="p-4 min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+    <div class="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
         <h1 class="text-4xl font-extrabold text-blue-900 text-center mb-8 tracking-tight">
             VVP Monitor
         </h1>
