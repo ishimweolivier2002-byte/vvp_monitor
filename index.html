@@ -57,86 +57,102 @@
     </div>
 
     <script>
-        const URL = 'https://yrlxzjqcwrndiqokrgjq.supabase.co';
-        const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlybHh6anFjd3JuZGlxb2tyZ2pxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NDcwMDYsImV4cCI6MjA5NDEyMzAwNn0.7vj_znuKxNC3MBKMjkOnKxIqJ-tjOxEnH5NUM97eb1w';
-        const client = supabase.createClient(URL, KEY);
+        // Use a try-catch block so we can see if there is an error
+        try {
+            const URL = 'https://yrlxzjqcwrndiqokrgjq.supabase.co';
+            const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlybHh6anFjd3JuZGlxb2tyZ2pxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NDcwMDYsImV4cCI6MjA5NDEyMzAwNn0.7vj_znuKxNC3MBKMjkOnKxIqJ-tjOxEnH5NUM97eb1w';
+            const client = supabase.createClient(URL, KEY);
 
-        const vData = {
-            "Gasizi": ["Kagano", "Kanzenze", "Kinyengagi", "Mikingo", "Rwanamiza"],
-            "Mudakama": ["Kagongo", "Mikingo", "Gakuku", "Kararo", "Rubaka"],
-            "Murago": ["Karurambi", "Manjari", "Rukingo", "Rusambu", "Rwinzovu"],
-            "Rubindi": ["Butakanyundo", "Gacondo", "Gataraga", "Kabaya", "Kaberege"],
-            "Rungu": ["Gahira", "Gatindori", "Kampande", "Nyarubande", "Gatovu"]
-        };
+            const vData = {
+                "Gasizi": ["Kagano", "Kanzenze", "Kinyengagi", "Mikingo", "Rwanamiza"],
+                "Mudakama": ["Kagongo", "Mikingo", "Gakuku", "Kararo", "Rubaka"],
+                "Murago": ["Karurambi", "Manjari", "Rukingo", "Rusambu", "Rwinzovu"],
+                "Rubindi": ["Butakanyundo", "Gacondo", "Gataraga", "Kabaya", "Kaberege"],
+                "Rungu": ["Gahira", "Gatindori", "Kampande", "Nyarubande", "Gatovu"]
+            };
 
-        const mSel = document.getElementById('month');
-        const cSel = document.getElementById('cell');
-        const vSel = document.getElementById('village');
-        const iSel = document.getElementById('indicator');
-        const msg = document.getElementById('msg');
-        const form = document.getElementById('vvpForm');
+            const mSel = document.getElementById('month');
+            const cSel = document.getElementById('cell');
+            const vSel = document.getElementById('village');
+            const iSel = document.getElementById('indicator');
+            const msg = document.getElementById('msg');
+            const form = document.getElementById('vvpForm');
 
-        for(let i=1; i<=14; i++) {
-            let o = document.createElement('option');
-            o.value = i;
-            o.textContent = "Month " + i;
-            mSel.appendChild(o);
-        }
-
-        cSel.addEventListener('change', (e) => {
-            const villages = vData[e.target.value] || [];
-            vSel.innerHTML = '<option value="">Select Village</option>';
-            vSel.disabled = !villages.length;
-            vSel.classList.toggle('bg-gray-50', !villages.length);
-            villages.forEach(v => {
+            // 1. Fill Months
+            for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
-                o.value = v; o.textContent = v;
-                vSel.appendChild(o);
-            });
-        });
-
-        vSel.addEventListener('change', async (e) => {
-            if(!e.target.value) return;
-            iSel.innerHTML = '<option>Loading...</option>';
-            const { data, error } = await client.from('app_dropdown_helper').select('*').eq('village', e.target.value);
-            
-            iSel.innerHTML = '<option value="">Select Indicator</option>';
-            iSel.disabled = false;
-            iSel.classList.remove('bg-gray-50');
-            if(data) data.forEach(row => {
-                let o = document.createElement('option');
-                o.value = row.indicator_id;
-                o.textContent = `${row.project_type}: ${row.indicator_name}`;
-                iSel.appendChild(o);
-            });
-        });
-
-        form.onsubmit = async function(e) {
-            e.preventDefault();
-            const b = document.getElementById('btn');
-            msg.innerText = "Processing...";
-            msg.className = "mt-4 text-center text-blue-600";
-            b.disabled = true;
-
-            const { error } = await client.from('monthly_progress').upsert({
-                indicator_id: iSel.value,
-                month_number: parseInt(mSel.value),
-                recorded_value: parseFloat(document.getElementById('val').value)
-            });
-
-            if(error) {
-                msg.innerText = "Error: " + error.message;
-                msg.className = "mt-4 text-center text-red-600";
-                b.disabled = false;
-            } else {
-                msg.innerText = "Success! Data synced.";
-                msg.className = "mt-4 text-center text-green-600";
-                form.reset();
-                b.disabled = false;
-                vSel.disabled = true;
-                iSel.disabled = true;
+                o.value = i;
+                o.textContent = "Month " + i;
+                mSel.appendChild(o);
             }
-        };
+
+            // 2. Cell Change
+            cSel.addEventListener('change', function() {
+                const val = this.value;
+                const villages = vData[val] || [];
+                vSel.innerHTML = '<option value="">Select Village</option>';
+                vSel.disabled = !villages.length;
+                vSel.className = villages.length ? "w-full p-3 border border-gray-300 rounded-md" : "w-full p-3 border border-gray-300 rounded-md bg-gray-50";
+                
+                villages.forEach(v => {
+                    let o = document.createElement('option');
+                    o.value = v; o.textContent = v;
+                    vSel.appendChild(o);
+                });
+            });
+
+            // 3. Village Change
+            vSel.addEventListener('change', async function() {
+                const val = this.value;
+                if(!val) return;
+                iSel.innerHTML = '<option>Loading...</option>';
+                
+                const { data, error } = await client.from('app_dropdown_helper').select('*').eq('village', val);
+                
+                iSel.innerHTML = '<option value="">Select Indicator</option>';
+                iSel.disabled = false;
+                iSel.className = "w-full p-3 border border-gray-300 rounded-md";
+                
+                if(data) {
+                    data.forEach(row => {
+                        let o = document.createElement('option');
+                        o.value = row.indicator_id;
+                        o.textContent = row.project_type + ": " + row.indicator_name;
+                        iSel.appendChild(o);
+                    });
+                }
+            });
+
+            // 4. Form Submit
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const b = document.getElementById('btn');
+                msg.innerText = "Processing...";
+                msg.style.color = "blue";
+                b.disabled = true;
+
+                const { error } = await client.from('monthly_progress').upsert({
+                    indicator_id: iSel.value,
+                    month_number: parseInt(mSel.value),
+                    recorded_value: parseFloat(document.getElementById('val').value)
+                });
+
+                if(error) {
+                    msg.innerText = "Error: " + error.message;
+                    msg.style.color = "red";
+                    b.disabled = false;
+                } else {
+                    msg.innerText = "Success! Data synced.";
+                    msg.style.color = "green";
+                    form.reset();
+                    b.disabled = false;
+                    vSel.disabled = true;
+                    iSel.disabled = true;
+                }
+            });
+        } catch (err) {
+            console.error("Script error:", err);
+        }
     </script>
 </body>
 </html>
