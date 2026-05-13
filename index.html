@@ -7,14 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="p-6 bg-gray-100">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+<body class="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200">
         <h1 class="text-2xl font-bold text-blue-700 text-center mb-6">VVP Monitor</h1>
         
         <form id="vvpForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Cell</label>
-                <select id="cell" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Cell</label>
+                <select id="cell" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
                     <option value="">Select Cell</option>
                     <option value="Gasizi">Gasizi</option>
                     <option value="Mudakama">Mudakama</option>
@@ -25,40 +25,39 @@
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Village</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Village</label>
                 <select id="village" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
                     <option value="">Select Village</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-sm font-semibold text-gray-700">Indicator</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Indicator</label>
                 <select id="indicator" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
                     <option value="">Select Indicator</option>
                 </select>
             </div>
 
-            <div class="flex gap-4">
-                <div class="flex-1">
-                    <label class="block text-sm font-semibold text-gray-700">Month</label>
-                    <select id="month" class="w-full p-3 border border-gray-300 rounded-md" required>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Month</label>
+                    <select id="month" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
                         <option value="">Month</option>
                     </select>
                 </div>
-                <div class="flex-1">
-                    <label class="block text-sm font-semibold text-gray-700">Value</label>
-                    <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter value" required>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Value</label>
+                    <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-md bg-white" placeholder="0.00" required>
                 </div>
             </div>
 
-            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md shadow-md transition duration-200">SUBMIT REPORT</button>
+            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md shadow-md mt-4">SUBMIT REPORT</button>
         </form>
-        <p id="msg" class="mt-4 text-center font-medium min-h-[20px]"></p>
+        <p id="msg" class="mt-4 text-center font-bold min-h-[24px]"></p>
     </div>
 
     <script>
-        // Use a try-catch block so we can see if there is an error
-        try {
+        document.addEventListener('DOMContentLoaded', () => {
             const URL = 'https://yrlxzjqcwrndiqokrgjq.supabase.co';
             const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlybHh6anFjd3JuZGlxb2tyZ2pxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NDcwMDYsImV4cCI6MjA5NDEyMzAwNn0.7vj_znuKxNC3MBKMjkOnKxIqJ-tjOxEnH5NUM97eb1w';
             const client = supabase.createClient(URL, KEY);
@@ -81,37 +80,38 @@
             // 1. Fill Months
             for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
-                o.value = i;
-                o.textContent = "Month " + i;
+                o.value = i; o.textContent = "Month " + i;
                 mSel.appendChild(o);
             }
 
-            // 2. Cell Change
-            cSel.addEventListener('change', function() {
-                const val = this.value;
-                const villages = vData[val] || [];
+            // 2. Cell Logic
+            cSel.onchange = function() {
+                const villages = vData[this.value] || [];
                 vSel.innerHTML = '<option value="">Select Village</option>';
                 vSel.disabled = !villages.length;
-                vSel.className = villages.length ? "w-full p-3 border border-gray-300 rounded-md" : "w-full p-3 border border-gray-300 rounded-md bg-gray-50";
+                vSel.className = villages.length ? "w-full p-3 border border-gray-300 rounded-md bg-white" : "w-full p-3 border border-gray-300 rounded-md bg-gray-50";
                 
                 villages.forEach(v => {
                     let o = document.createElement('option');
                     o.value = v; o.textContent = v;
                     vSel.appendChild(o);
                 });
-            });
+                iSel.innerHTML = '<option value="">Select Indicator</option>';
+                iSel.disabled = true;
+                iSel.classList.add('bg-gray-50');
+            };
 
-            // 3. Village Change
-            vSel.addEventListener('change', async function() {
-                const val = this.value;
-                if(!val) return;
+            // 3. Village Logic
+            vSel.onchange = async function() {
+                if(!this.value) return;
                 iSel.innerHTML = '<option>Loading...</option>';
+                iSel.disabled = true;
                 
-                const { data, error } = await client.from('app_dropdown_helper').select('*').eq('village', val);
+                const { data, error } = await client.from('app_dropdown_helper').select('*').eq('village', this.value);
                 
                 iSel.innerHTML = '<option value="">Select Indicator</option>';
                 iSel.disabled = false;
-                iSel.className = "w-full p-3 border border-gray-300 rounded-md";
+                iSel.className = "w-full p-3 border border-gray-300 rounded-md bg-white";
                 
                 if(data) {
                     data.forEach(row => {
@@ -121,14 +121,14 @@
                         iSel.appendChild(o);
                     });
                 }
-            });
+            };
 
-            // 4. Form Submit
-            form.addEventListener('submit', async (e) => {
+            // 4. Submit
+            form.onsubmit = async (e) => {
                 e.preventDefault();
                 const b = document.getElementById('btn');
-                msg.innerText = "Processing...";
-                msg.style.color = "blue";
+                msg.innerText = "Syncing with Supabase...";
+                msg.style.color = "#2563eb";
                 b.disabled = true;
 
                 const { error } = await client.from('monthly_progress').upsert({
@@ -139,20 +139,20 @@
 
                 if(error) {
                     msg.innerText = "Error: " + error.message;
-                    msg.style.color = "red";
+                    msg.style.color = "#dc2626";
                     b.disabled = false;
                 } else {
-                    msg.innerText = "Success! Data synced.";
-                    msg.style.color = "green";
+                    msg.innerText = "Success! Data saved.";
+                    msg.style.color = "#16a34a";
                     form.reset();
                     b.disabled = false;
                     vSel.disabled = true;
                     iSel.disabled = true;
+                    vSel.classList.add('bg-gray-50');
+                    iSel.classList.add('bg-gray-50');
                 }
-            });
-        } catch (err) {
-            console.error("Script error:", err);
-        }
+            };
+        });
     </script>
 </body>
 </html>
