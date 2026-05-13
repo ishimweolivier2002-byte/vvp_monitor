@@ -116,14 +116,15 @@
                 if(data) {
                     data.forEach(row => {
                         let o = document.createElement('option');
-                        o.value = row.indicator_id;
+                        // Ensure the value being set is the UUID from the database
+                        o.value = row.indicator_id; 
                         o.textContent = row.project_type + ": " + row.indicator_name;
                         iSel.appendChild(o);
                     });
                 }
             };
 
-            // 4. Submit
+            // 4. Updated Submit Logic (Handling UUID and Numbers correctly)
             form.onsubmit = async (e) => {
                 e.preventDefault();
                 const b = document.getElementById('btn');
@@ -131,13 +132,19 @@
                 msg.style.color = "#2563eb";
                 b.disabled = true;
 
+                // Capturing values and ensuring correct data types
+                const selectedIndicatorId = iSel.value; // UUID string
+                const selectedMonth = parseInt(mSel.value); // Number
+                const enteredValue = parseFloat(document.getElementById('val').value); // Number
+
                 const { error } = await client.from('monthly_progress').upsert({
-                    indicator_id: iSel.value,
-                    month_number: parseInt(mSel.value),
-                    recorded_value: parseFloat(document.getElementById('val').value)
+                    indicator_id: selectedIndicatorId,
+                    month_number: selectedMonth,
+                    recorded_value: enteredValue
                 });
 
                 if(error) {
+                    console.error("Submission Error:", error);
                     msg.innerText = "Error: " + error.message;
                     msg.style.color = "#dc2626";
                     b.disabled = false;
