@@ -9,14 +9,13 @@
 </head>
 <body class="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-        <!-- Enlarged and Bold Title -->
         <h1 class="text-4xl font-extrabold text-blue-800 text-center mb-8 tracking-tight">
             VVP Monitor
         </h1>
         
         <form id="vvpForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Cell</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Cell / Akagari</label>
                 <select id="cell" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
                     <option value="">Select Cell</option>
                     <option value="Gasizi">Gasizi</option>
@@ -28,14 +27,14 @@
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Village</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Village / Umudugudu</label>
                 <select id="village" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
                     <option value="">Select Village</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Indicator</label>
+                <label class="block text-sm font-bold text-gray-700 mb-1">Indicator / Igipimo</label>
                 <select id="indicator" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
                     <option value="">Select Indicator</option>
                 </select>
@@ -43,20 +42,19 @@
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Month</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Month / Ukwezi</label>
                     <select id="month" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
                         <option value="">Month</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Value</label>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Value / Umubare</label>
                     <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-md bg-white" placeholder="0.00" required>
                 </div>
             </div>
 
-            <!-- Larger, more prominent submit button -->
             <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-black py-4 rounded-lg shadow-xl mt-6 uppercase tracking-wide transition-all active:scale-95">
-                SUBMIT REPORT
+                SUBMIT / OHEREZA
             </button>
         </form>
         <p id="msg" class="mt-4 text-center font-bold min-h-[24px]"></p>
@@ -83,14 +81,12 @@
             const msg = document.getElementById('msg');
             const form = document.getElementById('vvpForm');
 
-            // 1. Fill Months
             for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
-                o.value = i; o.textContent = "Month " + i;
+                o.value = i; o.textContent = "Ukwezi kwa " + i;
                 mSel.appendChild(o);
             }
 
-            // 2. Cell Logic
             cSel.onchange = function() {
                 const villages = vData[this.value] || [];
                 vSel.innerHTML = '<option value="">Select Village</option>';
@@ -107,7 +103,6 @@
                 iSel.classList.add('bg-gray-50');
             };
 
-            // 3. Village Logic
             vSel.onchange = async function() {
                 if(!this.value) return;
                 iSel.innerHTML = '<option>Loading...</option>';
@@ -129,31 +124,25 @@
                 }
             };
 
-            // 4. Submit Logic
             form.onsubmit = async (e) => {
                 e.preventDefault();
                 const b = document.getElementById('btn');
-                msg.innerText = "Syncing with Supabase...";
+                msg.innerText = "Biri koherezwa... (Syncing)";
                 msg.style.color = "#2563eb";
                 b.disabled = true;
 
-                const selectedIndicatorId = iSel.value;
-                const selectedMonth = parseInt(mSel.value);
-                const enteredValue = parseFloat(document.getElementById('val').value);
-
                 const { error } = await client.from('monthly_progress').upsert({
-                    indicator_id: selectedIndicatorId,
-                    month_number: selectedMonth,
-                    recorded_value: enteredValue
+                    indicator_id: iSel.value,
+                    month_number: parseInt(mSel.value),
+                    recorded_value: parseFloat(document.getElementById('val').value)
                 });
 
                 if(error) {
-                    console.error("Submission Error:", error);
-                    msg.innerText = "Error: " + error.message;
+                    msg.innerText = "Habaye ikibazo: " + error.message;
                     msg.style.color = "#dc2626";
                     b.disabled = false;
                 } else {
-                    msg.innerText = "Success! Data saved.";
+                    msg.innerText = "Byageze ku ntego! (Success)";
                     msg.style.color = "#16a34a";
                     form.reset();
                     b.disabled = false;
