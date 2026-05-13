@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VVP Monitor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="p-6 bg-gray-100">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 border border-gray-200">
+        <h1 class="text-2xl font-bold text-blue-700 text-center mb-6">VVP Monitor</h1>
+        
+        <form id="vvpForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Cell</label>
+                <select id="cell" class="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" required>
+                    <option value="">Select Cell</option>
+                    <option value="Gasizi">Gasizi</option>
+                    <option value="Mudakama">Mudakama</option>
+                    <option value="Murago">Murago</option>
+                    <option value="Rubindi">Rubindi</option>
+                    <option value="Rungu">Rungu</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Village</label>
+                <select id="village" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
+                    <option value="">Select Village</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700">Indicator</label>
+                <select id="indicator" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
+                    <option value="">Select Indicator</option>
+                </select>
+            </div>
+
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-gray-700">Month</label>
+                    <select id="month" class="w-full p-3 border border-gray-300 rounded-md" required>
+                        <option value="">Month</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-semibold text-gray-700">Value</label>
+                    <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-md" placeholder="Enter value" required>
+                </div>
+            </div>
+
+            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md shadow-md transition duration-200">SUBMIT REPORT</button>
+        </form>
+        <p id="msg" class="mt-4 text-center font-medium min-h-[20px]"></p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const URL = 'https://yrlxzjqcwrndiqokrgjq.supabase.co';
+            const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlybHh6anFjd3JuZGlxb2tyZ2pxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NDcwMDYsImV4cCI6MjA5NDEyMzAwNn0.7vj_znuKxNC3MBKMjkOnKxIqJ-tjOxEnH5NUM97eb1w';
+            
+            // Initializing Supabase
+            const client = supabase.createClient(URL, KEY);
+
+            const vData = {
+                "Gasizi": ["Kagano", "Kanzenze", "Kinyengagi", "Mikingo", "Rwanamiza"],
+                "Mudakama": ["Kagongo", "Mikingo", "Gakuku", "Kararo", "Rubaka"],
+                "Murago": ["Karurambi", "Manjari", "Rukingo", "Rusambu", "Rwinzovu"],
+                "Rubindi": ["Butakanyundo", "Gacondo", "Gataraga", "Kabaya", "Kaberege"],
+                "Rungu": ["Gahira", "Gatindori", "Kampande", "Nyarubande", "Gatovu"]
+            };
+
+            const mSel = document.getElementById('month');
+            const cSel = document.getElementById('cell');
+            const vSel = document.getElementById('village');
+            const iSel = document.getElementById('indicator');
+            const msg = document.getElementById('msg');
+            const form = document.getElementById('vvpForm');
+
+            // 1. Fill Months (Fixing the issue in image_568422.png)
+            for(let i=1; i<=14; i++) {
+                let o = document.createElement('option');
+                o.value = i;
+                o.textContent = "Month " + i;
+                mSel.appendChild(o);
+            }
+
+            // 2. Village Selection Logic
+            cSel.onchange = (e) => {
+                const villages = vData[e.target.value] || [];
+                vSel.innerHTML = '<option value="">Select Village</option>';
+                vSel.disabled = !villages.length;
+                vSel.classList.toggle('bg-gray-50', !villages.length);
+                villages.forEach(v => {
+                    let o = document.createElement('option');
+                    o.value = v; o.textContent = v;
+                    vSel.appendChild(o);
+                });
+            };
+
+            // 3. Fetching Indicators
+            vSel.onchange = async (e) => {
+                if(!e.target.value) return;
+                iSel.innerHTML = '<option>Loading...</option>';
+                const { data, error } = await client.from('app_dropdown_helper').select('*').eq('village', e.target.value);
+                
+                iSel.innerHTML = '<option value="">Select Indicator</option>';
+                iSel.disabled = false;
+                iSel.classList.remove('bg-gray-50');
+                if(data) data.forEach(row => {
+                    let o = document.createElement('option');
+                    o.value = row.indicator_id;
+                    o.textContent = `${row.project_type}: ${row.indicator_name}`;
+                    iSel.appendChild(o);
+                });
+            };
+
+            // 4. Form Submission
+            form.onsubmit = async function(e) {
+                e.preventDefault();
+                const b = document.getElementById('btn');
+                msg.innerText = "Processing...";
+                msg.className = "mt-4 text-center text-blue-600";
+                b.disabled = true;
+
+                const { error } = await client.from('monthly_progress').upsert({
+                    indicator_id: iSel.value,
+                    month_number: parseInt(mSel.value),
+                    recorded_value: parseFloat(document.getElementById('val').value)
+                });
+
+                if(error) {
+                    msg.innerText = "Error: " + error.message;
+                    msg.className = "mt-4 text-center text-red-600";
+                    b.disabled = false;
+                } else {
+                    msg.innerText = "Success! Data synced.";
+                    msg.className = "mt-4 text-center text-green-600";
+                    form.reset();
+                    b.disabled = false;
+                    vSel.disabled = true;
+                    iSel.disabled = true;
+                }
+            };
+        });
+    </script>
+</body>
+</html>
