@@ -9,7 +9,10 @@
 </head>
 <body class="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-        <h1 class="text-2xl font-bold text-blue-700 text-center mb-6">VVP Monitor</h1>
+        <!-- Enlarged and Bold Title -->
+        <h1 class="text-4xl font-extrabold text-blue-800 text-center mb-8 tracking-tight">
+            VVP Monitor
+        </h1>
         
         <form id="vvpForm" class="space-y-4">
             <div>
@@ -51,7 +54,10 @@
                 </div>
             </div>
 
-            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-md shadow-md mt-4">SUBMIT REPORT</button>
+            <!-- Larger, more prominent submit button -->
+            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-black py-4 rounded-lg shadow-xl mt-6 uppercase tracking-wide transition-all active:scale-95">
+                SUBMIT REPORT
+            </button>
         </form>
         <p id="msg" class="mt-4 text-center font-bold min-h-[24px]"></p>
     </div>
@@ -116,7 +122,6 @@
                 if(data) {
                     data.forEach(row => {
                         let o = document.createElement('option');
-                        // Ensure the value being set is the UUID from the database
                         o.value = row.indicator_id; 
                         o.textContent = row.project_type + ": " + row.indicator_name;
                         iSel.appendChild(o);
@@ -124,7 +129,7 @@
                 }
             };
 
-            // 4. Updated Submit Logic (Handling UUID and Numbers correctly)
+            // 4. Submit Logic
             form.onsubmit = async (e) => {
                 e.preventDefault();
                 const b = document.getElementById('btn');
@@ -132,10 +137,9 @@
                 msg.style.color = "#2563eb";
                 b.disabled = true;
 
-                // Capturing values and ensuring correct data types
-                const selectedIndicatorId = iSel.value; // UUID string
-                const selectedMonth = parseInt(mSel.value); // Number
-                const enteredValue = parseFloat(document.getElementById('val').value); // Number
+                const selectedIndicatorId = iSel.value;
+                const selectedMonth = parseInt(mSel.value);
+                const enteredValue = parseFloat(document.getElementById('val').value);
 
                 const { error } = await client.from('monthly_progress').upsert({
                     indicator_id: selectedIndicatorId,
