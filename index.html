@@ -6,17 +6,28 @@
     <title>VVP Monitor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            /* Using the community image with a dark overlay for readability */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('image_2e0416.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+    </style>
 </head>
-<body class="p-4 bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-md bg-white rounded-xl shadow-lg p-6 border border-gray-200">
-        <h1 class="text-4xl font-extrabold text-blue-800 text-center mb-8 tracking-tight">
+<body class="p-4 min-h-screen flex items-center justify-center">
+    <!-- Semi-transparent white card with a blur effect -->
+    <div class="w-full max-w-md bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
+        <h1 class="text-4xl font-extrabold text-blue-900 text-center mb-8 tracking-tight">
             VVP Monitor
         </h1>
         
         <form id="vvpForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Cell / Akagari</label>
-                <select id="cell" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
+                <label class="block text-sm font-bold text-gray-800 mb-1">Cell / Akagari</label>
+                <select id="cell" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500" required>
                     <option value="">Select Cell</option>
                     <option value="Gasizi">Gasizi</option>
                     <option value="Mudakama">Mudakama</option>
@@ -27,33 +38,33 @@
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Village / Umudugudu</label>
-                <select id="village" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
+                <label class="block text-sm font-bold text-gray-800 mb-1">Village / Umudugudu</label>
+                <select id="village" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100/50 shadow-sm" disabled required>
                     <option value="">Select Village</option>
                 </select>
             </div>
 
             <div>
-                <label class="block text-sm font-bold text-gray-700 mb-1">Indicator / Igipimo</label>
-                <select id="indicator" class="w-full p-3 border border-gray-300 rounded-md bg-gray-50" disabled required>
+                <label class="block text-sm font-bold text-gray-800 mb-1">Indicator / Igipimo</label>
+                <select id="indicator" class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100/50 shadow-sm" disabled required>
                     <option value="">Select Indicator</option>
                 </select>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Month / Ukwezi</label>
-                    <select id="month" class="w-full p-3 border border-gray-300 rounded-md bg-white" required>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Month / Ukwezi</label>
+                    <select id="month" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm" required>
                         <option value="">Month</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Value / Umubare</label>
-                    <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-md bg-white" placeholder="0.00" required>
+                    <label class="block text-sm font-bold text-gray-800 mb-1">Value / Umubare</label>
+                    <input type="number" id="val" step="any" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm" placeholder="0.00" required>
                 </div>
             </div>
 
-            <button type="submit" id="btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg font-black py-4 rounded-lg shadow-xl mt-6 uppercase tracking-wide transition-all active:scale-95">
+            <button type="submit" id="btn" class="w-full bg-blue-700 hover:bg-blue-800 text-white text-lg font-black py-4 rounded-xl shadow-xl mt-6 uppercase tracking-widest transition-all active:scale-95">
                 SUBMIT / OHEREZA
             </button>
         </form>
@@ -81,6 +92,7 @@
             const msg = document.getElementById('msg');
             const form = document.getElementById('vvpForm');
 
+            // Populate Months in Kinyarwanda
             for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
                 o.value = i; o.textContent = "Ukwezi kwa " + i;
@@ -91,7 +103,7 @@
                 const villages = vData[this.value] || [];
                 vSel.innerHTML = '<option value="">Select Village</option>';
                 vSel.disabled = !villages.length;
-                vSel.className = villages.length ? "w-full p-3 border border-gray-300 rounded-md bg-white" : "w-full p-3 border border-gray-300 rounded-md bg-gray-50";
+                vSel.className = villages.length ? "w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm" : "w-full p-3 border border-gray-300 rounded-lg bg-gray-100/50 shadow-sm";
                 
                 villages.forEach(v => {
                     let o = document.createElement('option');
@@ -100,7 +112,6 @@
                 });
                 iSel.innerHTML = '<option value="">Select Indicator</option>';
                 iSel.disabled = true;
-                iSel.classList.add('bg-gray-50');
             };
 
             vSel.onchange = async function() {
@@ -112,7 +123,7 @@
                 
                 iSel.innerHTML = '<option value="">Select Indicator</option>';
                 iSel.disabled = false;
-                iSel.className = "w-full p-3 border border-gray-300 rounded-md bg-white";
+                iSel.className = "w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm";
                 
                 if(data) {
                     data.forEach(row => {
@@ -128,7 +139,7 @@
                 e.preventDefault();
                 const b = document.getElementById('btn');
                 msg.innerText = "Biri koherezwa... (Syncing)";
-                msg.style.color = "#2563eb";
+                msg.style.color = "#1e40af";
                 b.disabled = true;
 
                 const { error } = await client.from('monthly_progress').upsert({
@@ -139,17 +150,15 @@
 
                 if(error) {
                     msg.innerText = "Habaye ikibazo: " + error.message;
-                    msg.style.color = "#dc2626";
+                    msg.style.color = "#b91c1c";
                     b.disabled = false;
                 } else {
                     msg.innerText = "Byageze ku ntego! (Success)";
-                    msg.style.color = "#16a34a";
+                    msg.style.color = "#15803d";
                     form.reset();
                     b.disabled = false;
                     vSel.disabled = true;
                     iSel.disabled = true;
-                    vSel.classList.add('bg-gray-50');
-                    iSel.classList.add('bg-gray-50');
                 }
             };
         });
