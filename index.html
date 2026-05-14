@@ -25,7 +25,6 @@
         </h1>
         
         <form id="vvpForm" class="space-y-4">
-            <!-- NEW: Reporter Name Field -->
             <div>
                 <label class="block text-sm font-bold text-gray-800 mb-1">Reporter Name / Amazina</label>
                 <input type="text" id="reporter_name" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500" placeholder="Izina ryawe" required>
@@ -97,7 +96,7 @@
             const iSel = document.getElementById('indicator');
             const msg = document.getElementById('msg');
             const form = document.getElementById('vvpForm');
-            const rName = document.getElementById('reporter_name'); // New Constant
+            const rName = document.getElementById('reporter_name');
 
             for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
@@ -148,13 +147,13 @@
                 msg.style.color = "#1e40af";
                 b.disabled = true;
 
-                // UPDATED: Including reporter_name in the submission
+                // UPDATED: Added onConflict to fix the duplicate key error shown in image_ae4fbc.png
                 const { error } = await client.from('monthly_progress').upsert({
                     indicator_id: iSel.value,
                     month_number: parseInt(mSel.value),
                     recorded_value: parseFloat(document.getElementById('val').value),
-                    reporter_name: rName.value // This sends the name to your new column
-                });
+                    reporter_name: rName.value
+                }, { onConflict: 'indicator_id,month_number' });
 
                 if(error) {
                     msg.innerText = "Habaye ikibazo: " + error.message;
