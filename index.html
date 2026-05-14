@@ -8,9 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
-            /* Fallback blue while image loads */
             background-color: #1e3a8a; 
-            /* UPDATED: Handled the space and parentheses using %20 and %28 %29 */
             background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
                             url('image_3e0416%20%281%29.jpg');
             background-size: cover;
@@ -27,6 +25,12 @@
         </h1>
         
         <form id="vvpForm" class="space-y-4">
+            <!-- NEW: Reporter Name Field -->
+            <div>
+                <label class="block text-sm font-bold text-gray-800 mb-1">Reporter Name / Amazina</label>
+                <input type="text" id="reporter_name" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500" placeholder="Izina ryawe" required>
+            </div>
+
             <div>
                 <label class="block text-sm font-bold text-gray-800 mb-1">Cell / Akagari</label>
                 <select id="cell" class="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-blue-500" required>
@@ -93,6 +97,7 @@
             const iSel = document.getElementById('indicator');
             const msg = document.getElementById('msg');
             const form = document.getElementById('vvpForm');
+            const rName = document.getElementById('reporter_name'); // New Constant
 
             for(let i=1; i<=14; i++) {
                 let o = document.createElement('option');
@@ -143,10 +148,12 @@
                 msg.style.color = "#1e40af";
                 b.disabled = true;
 
+                // UPDATED: Including reporter_name in the submission
                 const { error } = await client.from('monthly_progress').upsert({
                     indicator_id: iSel.value,
                     month_number: parseInt(mSel.value),
-                    recorded_value: parseFloat(document.getElementById('val').value)
+                    recorded_value: parseFloat(document.getElementById('val').value),
+                    reporter_name: rName.value // This sends the name to your new column
                 });
 
                 if(error) {
